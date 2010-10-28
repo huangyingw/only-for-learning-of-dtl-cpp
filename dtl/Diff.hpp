@@ -1,49 +1,5 @@
-/**
-   dtl-1.09 -- Diff Template Library
-   
-   In short, Diff Template Library is distributed under so called "BSD license",
-   
-   Copyright (c) 2008-2010 Tatsuhiko Kubo <cubicdaiya@gmail.com>
-   All rights reserved.
-   
-   Redistribution and use in source and binary forms, with or without modification,
-   are permitted provided that the following conditions are met:
-   
-   * Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-   
-   * Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-   
-   * Neither the name of the authors nor the names of its contributors
-   may be used to endorse or promote products derived from this software 
-   without specific prior written permission.
-   
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-   TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-/* If you use this library, you must include dtl.hpp only. */
-
-#ifndef DTL_DIFF_H
-#define DTL_DIFF_H
-
 namespace dtl {
     
-    /**
-     * diff class template
-     * sequence must support random_access_iterator.
-     */
     template <typename elem, typename sequence = vector< elem >, typename comparator = Compare< elem > >
     class Diff
     {
@@ -63,7 +19,6 @@ namespace dtl {
         bool               reverse;
         bool               huge;
         bool               unserious;
-        bool               onlyEditDistance;
         uniHunkVec         uniHunks;
         comparator         cmp;
     public :
@@ -82,130 +37,7 @@ namespace dtl {
         
         ~Diff() {}
         
-        long long getEditDistance () const {
-            return editDistance;
-        }
-        
-        Ses< elem > getSes () const {
-            return ses;
-        }
-        
-        uniHunkVec getUniHunks () const {
-            return uniHunks;
-        }
-        
-        bool isHuge () const {
-            return huge;
-        }
-        
-        void onHuge () {
-            this->huge = true;
-        }
-        
-        void offHuge () {
-            this->huge = false;
-        }
-        
-        bool isUnserious () const {
-            return unserious;
-        }
-        
-        void onUnserious () {
-            this->unserious = true;
-        }
-        
-        void offUnserious () {
-            this->unserious = false;
-        }
-        
-        void onOnlyEditDistance () {
-            this->onlyEditDistance = true;
-        }
-        
-        /**
-         * patching with Unified Format Hunks
-         */
-        sequence uniPatch (const sequence& seq) {
-            elemList        seqLst(seq.begin(), seq.end());
-            sesElemVec      shunk;
-            sesElemVec_iter vsesIt;
-            elemList_iter   lstIt         = seqLst.begin();
-            long long       inc_dec_total = 0;
-            long long       gap           = 1;
-            for (uniHunkVec_iter it=uniHunks.begin();it!=uniHunks.end();++it) {
-                joinSesVec(shunk, it->common[0]);
-                joinSesVec(shunk, it->change);
-                joinSesVec(shunk, it->common[1]);
-                it->a         += inc_dec_total;
-                inc_dec_total += it->inc_dec_count;
-                for (long long i=0;i<it->a - gap;++i) {
-                    ++lstIt;
-                }
-                gap = it->a + it->b + it->inc_dec_count;
-                vsesIt = shunk.begin();
-                while (vsesIt!=shunk.end()) {
-                    switch (vsesIt->second.type) {
-                    case SES_ADD :
-                        seqLst.insert(lstIt, vsesIt->first);
-                        break;
-                    case SES_DELETE :
-                        if (lstIt != seqLst.end()) {
-                            lstIt = seqLst.erase(lstIt);
-                        }
-                        break;
-                    case SES_COMMON :
-                        if (lstIt != seqLst.end()) {
-                            ++lstIt;
-                        }
-                        break;
-                    default :
-                        // no through
-                        break;
-                    }
-                    ++vsesIt;
-                }
-                shunk.clear();
-            }
-            
-            sequence patchedSeq(seqLst.begin(), seqLst.end());
-            return patchedSeq;
-        }
-        
-        /**
-         * patching with Shortest Edit Script
-         */
-        sequence patch (const sequence& seq) const {
-            sesElemVec    sesSeq = ses.getSequence();
-            elemList      seqLst(seq.begin(), seq.end());
-            elemList_iter lstIt  = seqLst.begin();
-            for (sesElemVec_iter sesIt=sesSeq.begin();sesIt!=sesSeq.end();++sesIt) {
-                switch (sesIt->second.type) {
-                case SES_ADD :
-                    seqLst.insert(lstIt, sesIt->first);
-                    break;
-                case SES_DELETE :
-                    lstIt = seqLst.erase(lstIt);
-                    break;
-                case SES_COMMON :
-                    ++lstIt;
-                    break;
-                default :
-                    // no through
-                    break;
-                }
-            }
-            sequence patchedSeq(seqLst.begin(), seqLst.end());
-            return patchedSeq;
-        }
-        
-        /**
-         * compose Longest Common Subsequence and Shortest Edit Script.
-         * The algorithm implemented here is based on "An O(NP) Sequence Comparison Algorithm"
-         * described by Sun Wu, Udi Manber and Gene Myers
-         */
         void compose() {
-            
-            if (isHuge()) pathCordinates.reserve(MAX_CORDINATES_SIZE + 50000);
             
             long long p = -1;
             fp = new long long[M + N + 3];
@@ -229,12 +61,6 @@ namespace dtl {
             P cordinate;
             editPathCordinates epc(0);
             
-            // only recoding editdistance
-            if (onlyEditDistance) {
-                delete[] this->fp;
-                return;
-            }
-            
             while(r != -1){
                 cordinate.x = pathCordinates[(size_t)r].x;
                 cordinate.y = pathCordinates[(size_t)r].y;
@@ -252,36 +78,10 @@ namespace dtl {
             delete[] this->fp;
         }
         
-        /**
-         * print difference between A and B with SES
-         */
-        void printSES (ostream& out = cout) const {
-            sesElemVec ses_v = ses.getSequence();
-            for_each(ses_v.begin(), ses_v.end(), ChangePrinter< sesElem >(out));
-        }
-        
-        /**
-         * print difference with given SES
-         */
-        static void printSES (const Ses< elem >& s, ostream& out = cout) {
-            sesElemVec ses_v = s.getSequence();
-            for_each(ses_v.begin(), ses_v.end(), ChangePrinter< sesElem >(out));
-        }
-        
-        /**
-         * print difference between A and B with the format such as Unified Format
-         */
         void printUnifiedFormat (ostream& out = cout) const {
             for_each(uniHunks.begin(), uniHunks.end(), UniHunkPrinter< sesElem >(out));
         }
         
-        /**
-         * print unified format difference with given unified format hunks
-         */
-        static void printUnifiedFormat (const uniHunkVec& hunks, ostream& out = cout) {
-            for_each(hunks.begin(), hunks.end(), UniHunkPrinter< sesElem >(out));
-        }
-
         /**
          * compose Unified Format Hunks from Shortest Edit Script
          */
@@ -392,7 +192,6 @@ namespace dtl {
                     }
                     if (a == 0) ++a;
                     if (c == 0) ++c;
-                    if (isReverse()) swap(a, c);
                     hunk.a = a;hunk.b = b;hunk.c = c;hunk.d = d;
                     hunk.common[0] = common[0];
                     hunk.change = change;
@@ -429,7 +228,6 @@ namespace dtl {
             offset           = M + 1;
             huge             = false;
             unserious        = false;
-            onlyEditDistance = false;
             fp               = NULL;
         }
         
@@ -445,11 +243,9 @@ namespace dtl {
             }
             
             path[(size_t)k+offset] = static_cast<long long>(pathCordinates.size());
-            if (!onlyEditDistance) {
-                P p;
-                p.x = x;p.y = y;p.k = r;
-                pathCordinates.push_back(p);      
-            }
+            P p;
+            p.x = x;p.y = y;p.k = r;
+            pathCordinates.push_back(p);      
             return y;
         }
         
@@ -501,16 +297,7 @@ namespace dtl {
                 // all recording success
             } else {
                 // unserious difference
-                if (isUnserious()) {
-                    if (!isReverse()) {
-                        recordOddSequence(x_idx, M, x, SES_DELETE);
-                        recordOddSequence(y_idx, N, y, SES_ADD);
-                    } else {
-                        recordOddSequence(x_idx, M, x, SES_ADD);
-                        recordOddSequence(y_idx, N, y, SES_DELETE);
-                    }
-                    return true;
-                }
+                
                 
                 // decent difference
                 sequence A_(A.begin() + (size_t)x_idx - 1, A.end());
@@ -530,19 +317,7 @@ namespace dtl {
             return true;
         }
         
-        /**
-         * record odd sequence to ses
-         */
-        void inline recordOddSequence (long long idx, long long length, sequence_const_iter it, const edit_t et) {
-            while(idx < length){
-                ses.addSequence(*it, idx, 0, et);
-                ++it;
-                ++idx;
-                ++editDistance;
-            }
-            ses.addSequence(*it, idx, 0, et);
-            ++editDistance;
-        }
+
         
         /**
          * join ses vectors
@@ -555,13 +330,8 @@ namespace dtl {
             }      
         }
         
-        /**
-         * check sequence is replaced each other
-         */
         bool inline isReverse () const {
             return reverse;
         }
     };
 }
-
-#endif // DTL_DIFF_H

@@ -14,8 +14,7 @@ using dtl::Diff;
 
 int main(int argc, char *argv[]){
     string str1, str2;
-    Diff< char, std::string> d("abcefghijk", "abdefghijk");
-    //d.onOnlyEditDistance();
+    Diff< char, std::string> d("11111111abcefghijk11111111", "11111111abdefghijk11111111");
     d.compose();
     d.composeUnifiedHunks();
     d.printUnifiedFormat();
