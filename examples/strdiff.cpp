@@ -2,7 +2,7 @@
 #include "../dtl/functors.hpp"
 #include "../dtl/Sequence.hpp"
 #include "../dtl/Ses.hpp"
-#include "../dtl/Diff.hpp"
+#include "../dtl/Diff.h"
 
 #include <iostream>
 #include <vector>
