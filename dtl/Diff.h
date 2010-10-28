@@ -1,8 +1,3 @@
-#include "../dtl/variables.hpp"
-#include "../dtl/functors.hpp"
-#include "../dtl/Sequence.hpp"
-#include "../dtl/Ses.hpp"
-
 namespace dtl {
     
     template <typename elem, typename sequence = vector< elem >, typename comparator = Compare< elem > >
