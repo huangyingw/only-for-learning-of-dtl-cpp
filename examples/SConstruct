@@ -1,0 +1,21 @@
+
+# SConstruct for dtl examples
+
+env   = Environment(CPPPATH='..')
+debug = ARGUMENTS.get('debug', 'n')
+if debug == 'y' or debug == 'yes':
+    env.Append(CPPFLAGS = '-Wall -g')
+else:
+    env.Append(CPPFLAGS = '-Wall -O2')
+
+targets = { 'strdiff'    : ['strdiff.cpp',    'common.cpp'],
+            'intdiff'    : ['intdiff.cpp'],
+            'unidiff'    : ['unidiff.cpp',    'common.cpp'],
+            'unistrdiff' : ['unistrdiff.cpp', 'common.cpp'],
+            'strdiff3'   : ['strdiff3.cpp',   'common.cpp'],
+            'intdiff3'   : ['intdiff3.cpp'],
+            'patch'      : ['patch.cpp',      'common.cpp'],
+            'fpatch'     : ['fpatch.cpp',     'common.cpp']
+            }
+
+[ env.Program(target, targets[target]) for target in targets ]
