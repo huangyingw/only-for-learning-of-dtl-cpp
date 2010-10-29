@@ -1,0 +1,9 @@
+cc_binary(name = 'strdiff',
+           srcs = [
+                    'strdiff.cpp',
+                  ],
+           deps = ['//base:base',
+                   '//file:file',
+                  ]
+           )
+
