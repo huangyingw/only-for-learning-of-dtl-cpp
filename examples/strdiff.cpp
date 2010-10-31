@@ -19,21 +19,17 @@ int main(int argc, char *argv[]){
     string A("fdadkjfeijdkfsj");
     string B("fdadkjffdkjkewfjdksj");
     
-    Diff< elem, sequence > d(A, B);
+    Diff< char, string> d(A, B);
     //d.onOnlyEditDistance();
     d.compose();
     
     // editDistance
     cout << "editDistance:" << d.getEditDistance() << endl;
     
-    // Longest Common Subsequence
-    vector< elem > lcs_v = d.getLcsVec();
-    sequence       lcs_s(lcs_v.begin(), lcs_v.end());
-    cout << "LCS:" << lcs_s << endl;
-    
     // Shortest Edit Script
-    cout << "SES" << endl;
-    d.printSES();
+    cout << "UifiedFormat" << endl;
+    d.composeUnifiedHunks();
+    d.printUnifiedFormat();
     
     return 0;
 }
