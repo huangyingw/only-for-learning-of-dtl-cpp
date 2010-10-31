@@ -43,9 +43,6 @@ namespace dtl {
         
         ~Diff() {}
         
-        bool isHuge () const {
-            return huge;
-        }
         
         bool isUnserious () const {
             return unserious;
@@ -64,8 +61,6 @@ namespace dtl {
          */
         
         void compose() {
-            
-            if (isHuge()) pathCordinates.reserve(MAX_CORDINATES_SIZE + 50000);
             
             long long p = -1;
             fp = new long long[M + N + 3];
