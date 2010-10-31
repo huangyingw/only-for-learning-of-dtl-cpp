@@ -63,38 +63,6 @@ namespace dtl {
          * patching with Unified Format Hunks
          */
         
-        /**
-         * patching with Shortest Edit Script
-         */
-        sequence patch (const sequence& seq) const {
-            sesElemVec    sesSeq = ses.getSequence();
-            elemList      seqLst(seq.begin(), seq.end());
-            elemList_iter lstIt  = seqLst.begin();
-            for (sesElemVec_iter sesIt=sesSeq.begin();sesIt!=sesSeq.end();++sesIt) {
-                switch (sesIt->second.type) {
-                case SES_ADD :
-                    seqLst.insert(lstIt, sesIt->first);
-                    break;
-                case SES_DELETE :
-                    lstIt = seqLst.erase(lstIt);
-                    break;
-                case SES_COMMON :
-                    ++lstIt;
-                    break;
-                default :
-                    // no through
-                    break;
-                }
-            }
-            sequence patchedSeq(seqLst.begin(), seqLst.end());
-            return patchedSeq;
-        }
-        
-        /**
-         * compose Longest Common Subsequence and Shortest Edit Script.
-         * The algorithm implemented here is based on "An O(NP) Sequence Comparison Algorithm"
-         * described by Sun Wu, Udi Manber and Gene Myers
-         */
         void compose() {
             
             if (isHuge()) pathCordinates.reserve(MAX_CORDINATES_SIZE + 50000);
