@@ -47,14 +47,6 @@ namespace dtl {
             return huge;
         }
         
-        void onHuge () {
-            this->huge = true;
-        }
-        
-        void offHuge () {
-            this->huge = false;
-        }
-        
         bool isUnserious () const {
             return unserious;
         }
@@ -65,10 +57,6 @@ namespace dtl {
         
         void offUnserious () {
             this->unserious = false;
-        }
-        
-        void onOnlyEditDistance () {
-            this->onlyEditDistance = true;
         }
         
         /**
