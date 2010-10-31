@@ -62,51 +62,6 @@ namespace dtl {
         /**
          * patching with Unified Format Hunks
          */
-        sequence uniPatch (const sequence& seq) {
-            elemList        seqLst(seq.begin(), seq.end());
-            sesElemVec      shunk;
-            sesElemVec_iter vsesIt;
-            elemList_iter   lstIt         = seqLst.begin();
-            long long       inc_dec_total = 0;
-            long long       gap           = 1;
-            for (uniHunkVec_iter it=uniHunks.begin();it!=uniHunks.end();++it) {
-                joinSesVec(shunk, it->common[0]);
-                joinSesVec(shunk, it->change);
-                joinSesVec(shunk, it->common[1]);
-                it->a         += inc_dec_total;
-                inc_dec_total += it->inc_dec_count;
-                for (long long i=0;i<it->a - gap;++i) {
-                    ++lstIt;
-                }
-                gap = it->a + it->b + it->inc_dec_count;
-                vsesIt = shunk.begin();
-                while (vsesIt!=shunk.end()) {
-                    switch (vsesIt->second.type) {
-                    case SES_ADD :
-                        seqLst.insert(lstIt, vsesIt->first);
-                        break;
-                    case SES_DELETE :
-                        if (lstIt != seqLst.end()) {
-                            lstIt = seqLst.erase(lstIt);
-                        }
-                        break;
-                    case SES_COMMON :
-                        if (lstIt != seqLst.end()) {
-                            ++lstIt;
-                        }
-                        break;
-                    default :
-                        // no through
-                        break;
-                    }
-                    ++vsesIt;
-                }
-                shunk.clear();
-            }
-            
-            sequence patchedSeq(seqLst.begin(), seqLst.end());
-            return patchedSeq;
-        }
         
         /**
          * patching with Shortest Edit Script
