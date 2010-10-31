@@ -11,10 +11,7 @@ using dtl::Diff;
 
 int main(int argc, char *argv[]){
     
-    if (isFewArgs(argc)) {
-        cerr << "few argument" << endl;
-        return -1;
-    }
+    
     
     typedef char   elem;
     typedef string sequence;
