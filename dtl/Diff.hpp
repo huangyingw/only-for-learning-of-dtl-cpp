@@ -43,19 +43,6 @@ namespace dtl {
         
         ~Diff() {}
         
-        long long getEditDistance () const {
-            return editDistance;
-        }
-        
-        
-        Ses< elem > getSes () const {
-            return ses;
-        }
-        
-        uniHunkVec getUniHunks () const {
-            return uniHunks;
-        }
-        
         bool isHuge () const {
             return huge;
         }
