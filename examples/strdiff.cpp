@@ -16,8 +16,8 @@ int main(int argc, char *argv[]){
     typedef char   elem;
     typedef string sequence;
 
-    sequence A(argv[1]);
-    sequence B(argv[2]);
+    string A("fdadkjfeijdkfsj");
+    string B("fdadkjffdkjkewfjdksj");
     
     Diff< elem, sequence > d(A, B);
     //d.onOnlyEditDistance();
