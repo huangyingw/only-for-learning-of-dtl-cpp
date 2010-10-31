@@ -47,13 +47,6 @@ namespace dtl {
             return editDistance;
         }
         
-        Lcs< elem > getLcs () const {
-            return lcs;
-        }
-        
-        elemVec getLcsVec () const {
-            return lcs.getSequence();
-        }
         
         Ses< elem > getSes () const {
             return ses;
